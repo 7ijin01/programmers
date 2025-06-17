@@ -1,52 +1,51 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <queue>
 using namespace std;
 
 int solution(int N, vector<vector<int>> road, int K) {
     int answer = 0;
-    vector<pair<int,int>> graph[N+1];
-    vector<int> visit(N+1,0);
-    vector<int> distance(N+1,100000001);
+    vector<pair<int,int>>graph[N+1];
+    vector<int> visit(N+1,false);
+    vector<int> distance(N+1,10000000001);
     
-    for(const auto&node :road)
+    for(auto node:road)
     {
         int a=node[0];
         int b=node[1];
         int c=node[2];
-        graph[a].push_back(make_pair(b,c));
-        graph[b].push_back(make_pair(a,c));
+        graph[a].push_back({b,c});
+        graph[b].push_back({a,c});
     }
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
-    q.push(make_pair(0,1));
+    priority_queue<pair<int,int>,vector<pair<int,int>>, greater<pair<int,int>>> q;
+    q.push({0,1});
     distance[1]=0;
     while(!q.empty())
     {
+        int cost=q.top().first;
         int node=q.top().second;
-        int dist=q.top().first;
         q.pop();
         if(visit[node]==true)
             continue;
         visit[node]=true;
-        for(auto&n:graph[node])
+        for(auto [a,b]: graph[node])
         {
-            int cnt=distance[node];
-            int g=n.first;
-            int cost=n.second;
-            if(distance[g]>cnt+cost)
+            if(b+cost<distance[a])
             {
-                distance[g]=cnt+cost;
-                q.push(make_pair(distance[g],g));
+                distance[a]=cost+b;
             }
+            q.push({distance[a],a});
         }
+        
     }
-    for(int cnt:distance)
+    for(int i=1;i<=N;i++)
     {
-        if(cnt<=K)
+        if(distance[i]<=K)
             answer+=1;
-            
     }
     
+  
 
     return answer;
 }
